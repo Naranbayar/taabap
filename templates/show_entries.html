@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <div style="margin:10px">
+    <form action="{{ url_for('add_news') }}" method=post class=add-news>
+        <input type=submit value="Get News">
+    </form>
+    <form action="{{ url_for('delete_all') }}" method=post class=add-all>
+        <input type=submit value="Delete all">
+    </form>
+    </div>
+  {% endif %}
+  <section id="recent-news" class=entries>
+      {% for entry in entries %}
+        <article>
+          {% if session.logged_in %}
+          <div class="header">
+            <a href=publish/{{entry.id}} class="publish">Нийтлэх</a>
+            <a href=delete/{{entry.id}} class="delete">Устгах</a>
+          </div>
+          {% endif %}        
+          <div class="image">
+            <a href=news/{{entry.id}} target="_blank"><img src={{ entry.image }} alt={{entry.title}}></a>
+          </div>
+
+          <div class="content">
+            <header>
+              <h2>
+                <a href=news/{{entry.id}} target="_blank"> {{entry.title}} </a>
+              </h2>
+              <div class="meta">
+                <span class="viewed">{{entry.read}}</span>
+                <div class="source">
+                   <a href={{entry.origin_url}} target="_blank">{{entry.origin_url}} {{entry.time}}</a>
+                </div>
+              </div>
+            </header>
+            <p>
+              {{ entry.content|safe }}
+            </p>
+          </div>
+          <ul class="actions">
+            <li><a href="https://twitter.com/intent/tweet?url=http://qlio-news.appspot.com/news/{{entry.id}}&text={{entry.title}}&via=NaranbayarU" target="_blank">Twitter</a></li>
+            <li><a href="http://qlio-news.appspot.com/news/{{entry.id}}" class="fb-feed" target="_blank">Facebook</a></li>
+            <li>
+              <div class="source">
+                Нийтлэгдсэн : {{entry.time}}
+              </div>
+            </li>
+          </ul>        
+        </article>
+      {% endfor %}
+  </section>
+{% endblock %}

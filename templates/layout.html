@@ -1,0 +1,12 @@
+<!doctype html>
+<title>TAABAP news</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='fonts.css') }}">
+<div class=page>
+  <nav>
+  <h1><a href="/">TAABAP news</a></h1>
+  </nav>
+  <main>
+  {% block body %}{% endblock %}
+  </main>
+</div>

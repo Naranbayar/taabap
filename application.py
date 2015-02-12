@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-"""
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, _app_ctx_stack
@@ -11,14 +9,12 @@ DATABASE = '/tmp/flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
-PASSWORD = 'a'
+PASSWORD = 'TaaBaP'
 
 # create our little application :)
 application = Flask(__name__)
 application.config.from_object(__name__)
 application.config.from_envvar('FLASKR_SETTINGS', silent=True)
-
-
 
 
 def get_db():
@@ -40,6 +36,7 @@ def close_db_connection(exception):
     if hasattr(top, 'sqlite_db'):
         top.sqlite_db.close()
 
+
 @application.route('/createdb')
 def init_db():
     """Creates the database tables."""
@@ -48,6 +45,7 @@ def init_db():
         with application.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
+
 
 @application.route('/')
 def show_entries():
@@ -58,6 +56,7 @@ def show_entries():
         cur = db.execute('select id, origin, title, origin_url, content, time, image, read from news where published=1 order by id desc')
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
+
 
 @application.route('/news/<ids>')
 def redirect_news(ids):
@@ -70,6 +69,7 @@ def redirect_news(ids):
     db.commit()
     return redirect(redirect_url)
 
+
 @application.route('/delete/<ids>')
 def delete_news(ids):
     if not session.get('logged_in'):
@@ -79,6 +79,7 @@ def delete_news(ids):
     cur = db.execute("delete from news where id="+ids)
     db.commit()
     return redirect(url_for('show_entries'))
+
 
 @application.route('/publish/<ids>')
 def publish_news(ids):
@@ -90,6 +91,7 @@ def publish_news(ids):
     db.commit()
     return redirect(url_for('show_entries'))
 
+
 @application.route('/unpublish/<ids>')
 def unpublish_news(ids):
     if not session.get('logged_in'):
@@ -100,6 +102,7 @@ def unpublish_news(ids):
     db.commit()
     return redirect(url_for('show_entries'))
 
+
 @application.route('/delete_all', methods=['POST'])
 def delete_all():
     if not session.get('logged_in'):
@@ -109,6 +112,7 @@ def delete_all():
     db.execute("delete from news where published=0")
     db.commit()
     return redirect(url_for('show_entries'))
+
 
 @application.route('/add_news', methods=['POST'])
 def add_news():

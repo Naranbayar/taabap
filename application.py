@@ -9,7 +9,7 @@ DATABASE = '/tmp/flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
-PASSWORD = 'TaaBaP'
+PASSWORD = 'a'
 
 # create our little application :)
 application = Flask(__name__)

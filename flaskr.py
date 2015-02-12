@@ -52,7 +52,7 @@ def close_db_connection(exception):
 def show_entries():
     db = get_db()
     if session.get('logged_in'):
-        cur = db.execute('select id, origin, title, origin_url, content, time, image, read from news order by id desc')
+        cur = db.execute('select id, origin, title, origin_url, content, time, image, read, published from news order by id desc')
     else:
         cur = db.execute('select id, origin, title, origin_url, content, time, image, read from news where published=1 order by id desc')
     entries = cur.fetchall()
@@ -86,6 +86,16 @@ def publish_news(ids):
 
     db = get_db()
     db.execute("update news SET published=1 WHERE id="+ids)
+    db.commit()
+    return redirect(url_for('show_entries'))
+
+@app.route('/unpublish/<ids>')
+def unpublish_news(ids):
+    if not session.get('logged_in'):
+        abort(401)
+
+    db = get_db()
+    db.execute("update news SET published=0 WHERE id="+ids)
     db.commit()
     return redirect(url_for('show_entries'))
 
@@ -138,4 +148,4 @@ def logout():
 
 if __name__ == '__main__':
     init_db()
-    app.run()
+    app.run(host='localhost')

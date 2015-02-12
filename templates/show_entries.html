@@ -15,7 +15,12 @@
         <article>
           {% if session.logged_in %}
           <div class="header">
-            <a href=publish/{{entry.id}} class="publish">Нийтлэх</a>
+            {% if entry.published==0 %}
+              <a href=publish/{{entry.id}} class="publish">Нийтлэх</a>
+            {% endif %}        
+            {% if entry.published==1 %}
+              <a href=unpublish/{{entry.id}} class="unpublish">Хасах</a>
+            {% endif %}        
             <a href=delete/{{entry.id}} class="delete">Устгах</a>
           </div>
           {% endif %}        
@@ -31,7 +36,7 @@
               <div class="meta">
                 <span class="viewed">{{entry.read}}</span>
                 <div class="source">
-                   <a href={{entry.origin_url}} target="_blank">{{entry.origin_url}} {{entry.time}}</a>
+                   <a href={{entry.origin_url}} target="_blank">{{entry.origin_url}}</a>
                 </div>
               </div>
             </header>

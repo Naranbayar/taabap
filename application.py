@@ -19,13 +19,6 @@ application.config.from_object(__name__)
 application.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 
-def init_db():
-    """Creates the database tables."""
-    with application.app_context():
-        db = get_db()
-        with application.open_resource('schema.sql', mode='r') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
 
 
 def get_db():
@@ -47,6 +40,14 @@ def close_db_connection(exception):
     if hasattr(top, 'sqlite_db'):
         top.sqlite_db.close()
 
+@application.route('/createdb')
+def init_db():
+    """Creates the database tables."""
+    with application.app_context():
+        db = get_db()
+        with application.open_resource('schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
 
 @application.route('/')
 def show_entries():
@@ -147,5 +148,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    init_db()
     application.run(host='0.0.0.0')

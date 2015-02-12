@@ -14,16 +14,16 @@ USERNAME = 'admin'
 PASSWORD = 'a'
 
 # create our little application :)
-app = Flask(__name__)
-app.config.from_object(__name__)
-app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+application = Flask(__name__)
+application.config.from_object(__name__)
+application.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 
 def init_db():
     """Creates the database tables."""
-    with app.app_context():
+    with application.app_context():
         db = get_db()
-        with app.open_resource('schema.sql', mode='r') as f:
+        with application.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
@@ -33,14 +33,14 @@ def get_db():
     current application context."""
     top = _app_ctx_stack.top
     if not hasattr(top, 'sqlite_db'):
-        sqlite_db = sqlite3.connect(app.config['DATABASE'])
+        sqlite_db = sqlite3.connect(application.config['DATABASE'])
         sqlite_db.row_factory = sqlite3.Row
         top.sqlite_db = sqlite_db
 
     return top.sqlite_db
 
 
-@app.teardown_appcontext
+@application.teardown_appcontext
 def close_db_connection(exception):
     """Closes the database again at the end of the request."""
     top = _app_ctx_stack.top
@@ -48,7 +48,7 @@ def close_db_connection(exception):
         top.sqlite_db.close()
 
 
-@app.route('/')
+@application.route('/')
 def show_entries():
     db = get_db()
     if session.get('logged_in'):
@@ -58,7 +58,7 @@ def show_entries():
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
 
-@app.route('/news/<ids>')
+@application.route('/news/<ids>')
 def redirect_news(ids):
     db = get_db()
     cur = db.execute("select url, read from news where id="+ids)
@@ -69,7 +69,7 @@ def redirect_news(ids):
     db.commit()
     return redirect(redirect_url)
 
-@app.route('/delete/<ids>')
+@application.route('/delete/<ids>')
 def delete_news(ids):
     if not session.get('logged_in'):
         abort(401)
@@ -79,7 +79,7 @@ def delete_news(ids):
     db.commit()
     return redirect(url_for('show_entries'))
 
-@app.route('/publish/<ids>')
+@application.route('/publish/<ids>')
 def publish_news(ids):
     if not session.get('logged_in'):
         abort(401)
@@ -89,7 +89,7 @@ def publish_news(ids):
     db.commit()
     return redirect(url_for('show_entries'))
 
-@app.route('/unpublish/<ids>')
+@application.route('/unpublish/<ids>')
 def unpublish_news(ids):
     if not session.get('logged_in'):
         abort(401)
@@ -99,7 +99,7 @@ def unpublish_news(ids):
     db.commit()
     return redirect(url_for('show_entries'))
 
-@app.route('/delete_all', methods=['POST'])
+@application.route('/delete_all', methods=['POST'])
 def delete_all():
     if not session.get('logged_in'):
         abort(401)
@@ -109,7 +109,7 @@ def delete_all():
     db.commit()
     return redirect(url_for('show_entries'))
 
-@app.route('/add_news', methods=['POST'])
+@application.route('/add_news', methods=['POST'])
 def add_news():
     if not session.get('logged_in'):
         abort(401)
@@ -126,11 +126,11 @@ def add_news():
     return redirect(url_for('show_entries'))
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@application.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['password'] != app.config['PASSWORD']:
+        if request.form['password'] != application.config['PASSWORD']:
             error = 'Invalid password'
         else:
             session['logged_in'] = True
@@ -139,7 +139,7 @@ def login():
     return render_template('login.html', error=error)
 
 
-@app.route('/logout')
+@application.route('/logout')
 def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
@@ -148,4 +148,4 @@ def logout():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0')
+    application.run(host='0.0.0.0')

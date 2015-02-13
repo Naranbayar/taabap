@@ -4,6 +4,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, _app_ctx_stack
 import json
 import urllib2
+from datetime import datetime
+
 # configuration
 DATABASE = '/tmp/flaskr.db'
 DEBUG = True
@@ -16,6 +18,17 @@ application = Flask(__name__)
 application.config.from_object(__name__)
 application.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
+prev_date = datetime(1,1,1,0,0,0)
+
+def get_prevdate():
+    global prev_date
+    try: prev_date
+    except: prev_date = datetime(1,1,1,0,0,0)    
+    return prev_date
+
+def set_prevdate(val_date):
+    global prev_date
+    prev_date = val_date
 
 def get_db():
     """Opens a new database connection if there is none yet for the
@@ -119,15 +132,17 @@ def add_news():
     if not session.get('logged_in'):
         abort(401)
 
+    date_p = get_prevdate()        
     url = 'http://qlio-rss.appspot.com/'
     jsonData = json.loads(urllib2.urlopen(url).read())
     db = get_db()
     for item in jsonData:
-        db.execute('insert into news (url, origin, title, origin_url, content, time, image, read, published) values (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [item.get("url"), item.get("origin"), item.get("title"), item.get("origin_url"), item.get("content"), item.get("time"), item.get("image"), 0, 0])
+        date_object = datetime.strptime(item.get("time"), '%Y-%m-%d %H:%M:%S')
+        if date_object > date_p:
+            db.execute('insert into news (url, origin, title, origin_url, content, time, image, read, published) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', [item.get("url"), item.get("origin"), item.get("title"), item.get("origin_url"), item.get("content"), item.get("time"), item.get("image"), 0, 0])
 
     db.commit()
-    flash('New entry was successfully posted')
+    set_prevdate(datetime.now())
     return redirect(url_for('show_entries'))
 
 
